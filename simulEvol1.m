@@ -14,7 +14,6 @@ function time = simulEvol1(Q,nseq1,nseq2,timeInter,maxPopl);
         x = gpuArray(x);
         E = gpuArray(E);
         for t=2:timeInter
-            t
             x = (1-sum(x,1)/maxPopl) * (E+Q)*x;
 %             x(:,t) = x(:,t-1) + (1-sum(x(:,t-1),1)/maxPopl) *Q*x(:,t-1);
             popl = find(x((nseq1+1):nseq1+nseq2) >= thr);

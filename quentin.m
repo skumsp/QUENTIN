@@ -1,18 +1,16 @@
-function [HostNetThr, sources, transNets,TransTrees] = quentin(inputFolder,splitsTreeFolder,distType,distThr,nclust,nIterMCMC,rho)
+function [HostNetThr, sources, transNets,transTrees] = quentin(inputFolder,splitsTreeFolder,distType,distThr,nclust,nIterSimul,nIterMCMC,nInstMCMC,interHostCoeffs,rho)
 
 outdir = inputFolder;
-if distType == []
+if isempty(distType)
     distType = 'evol';
 end
 % distType = 'consensus';
 % distType = 'mindist';
 ntoktype = 2;
 freq_thr = 0;
-if nclust == []
+if isempty(nclust)
     nclust = 12;
 end
-timeInter = 100000;
-
 
 files = dir(fullfile(outdir,'*.fas'));
 nSamp = size(files,1);
@@ -20,7 +18,7 @@ names_pat = cell(1,nSamp);
 centroids_pat = cell(1,nSamp);
 centroids_pat_freq = cell(1,nSamp);
 
-parfor i =1:size(files,1) 
+for i =1:size(files,1) 
    [pathstr,name,ext] = fileparts(files(i).name);
    namelong = name;
    ['Calculating clusters ' namelong]   
@@ -47,7 +45,7 @@ DSampParRev = zeros(1,size(product,1));
 x = product(:,1);
 y = product(:,2);
 
-parfor p=1:size(product,1)
+for p=1:size(product,1)
         p1 = x(p);
         p2 = y(p);
         if p1>=p2
@@ -55,7 +53,7 @@ parfor p=1:size(product,1)
         end
 
         try
-            [d12, d21] = outbreaks_aspen1(centroids_pat{p1},centroids_pat_freq{p1},subtypes_pat{p1},names_pat{p1},p1,centroids_pat{p2},centroids_pat_freq{p2},subtypes_pat{p2},names_pat{p2},p2,inputFolder,distType,timeInter,splitsTreeFolder);
+            [d12, d21] = outbreaks_aspen1(centroids_pat{p1},centroids_pat_freq{p1},[],names_pat{p1},p1,centroids_pat{p2},centroids_pat_freq{p2},[],names_pat{p2},p2,inputFolder,distType,nIterSimul,splitsTreeFolder);
         catch
             fid = fopen( 'log.txt', 'w' );
             message = [names_pat{p1},' ', names_pat{p2}];
@@ -111,17 +109,37 @@ sources = names_pat(source);
 
 maxdist = [];
 nEdgeModif = 2;
-if rho == []
+if isempty(rho)
     rho = [1];
 end
 ndecr = 4;
+if isempty(interHostCoeffs)
+    interHostCoeffs = [1 1.25 1.5];
+end
 
+transNets= cell(1,S);
+transTrees = cell(1,S);
 for c=1:S
    comp = find(C == c);
    nComp = size(comp,2);
    if nComp > 1
        DSamp_comp = DSamp(comp,comp);
-       [transNets,TransTrees,record,aux] = findTransNetMCMC4(DSamp_comp,nIterMCMC,maxdist,nEdgeModif,rho,ndecr,[], 0,[],[]);
+       
+%        [transNetsComp,TransTreesComp,record,aux] = findTransNetMCMC4(DSamp_comp,nIterMCMC,maxdist,nEdgeModif,rho,ndecr,[], 0,[],[]);
+       
+       transNetsMCMCPar = cell(1,nInstMCMC);
+       TransNetTreesWeightPar = cell(1,nInstMCMC);
+       recordPar = zeros(1,nInstMCMC);
+       parfor i=1:nInstMCMC
+            interHostCoeff = datasample(interHostCoeffs,1);
+            [transNetsMCMCPar{i},TransNetTreesWeightPar{i},recordPar(i),aux] = findTransNetMCMC5(DSamp_comp,nIterMCMC,maxdist,nEdgeModif,rho,interHostCoeff,ndecr,[], 0,[],[]);
+       end
+       [argvalue, argmax] = max(recordPar);
+       transNetsComp = transNetsMCMCPar{argmax};
+       TransTreesComp = TransNetTreesWeightPar{argmax};
+       
+       transNets{c} = transNetsComp{1};
+       transTrees{c} = TransTreesComp{1};
    end
 end
 

@@ -21,18 +21,18 @@ function [d12, d21] = outbreaks_aspen1(seq1,freq1,subtype1,name1,p1,seq2,freq2, 
         return;
     end
     
-    if strcmp(subtype1,subtype2) == 0
-        d12 = intmax;
-        d21 = intmax;
-        resDir = [outbName '_results'];
-%         resDir = [outbName '_results_' distType];
-        outfile = [resDir filesep int2str(p1) '_' int2str(p2) '_' name1 '_' name2 '_res.txt'];
-        fid = fopen(outfile, 'w');
-        fprintf(fid, [num2str(d12) '\n']);
-        fprintf(fid, [num2str(d21) '\n']);
-        status = fclose(fid);
-        return;
-    end
+%     if strcmp(subtype1,subtype2) == 0
+%         d12 = intmax;
+%         d21 = intmax;
+%         resDir = [outbName '_results'];
+% %         resDir = [outbName '_results_' distType];
+%         outfile = [resDir filesep int2str(p1) '_' int2str(p2) '_' name1 '_' name2 '_res.txt'];
+%         fid = fopen(outfile, 'w');
+%         fprintf(fid, [num2str(d12) '\n']);
+%         fprintf(fid, [num2str(d21) '\n']);
+%         status = fclose(fid);
+%         return;
+%     end
     
     if strcmp(distType,'mindist')
         seq1 = char (seq1.Sequence);
@@ -85,31 +85,13 @@ function [d12, d21] = outbreaks_aspen1(seq1,freq1,subtype1,name1,p1,seq2,freq2, 
 %       [d12, d21] = calcTimeSamp_MJNSimul(seq1,seq2,freq1,freq2,name1,name2,splitsTreeFolder, timeInter, toAlign, toIgnoreGaps);
       try
         [d12, d21] = calcTimeSamp_MJNSimul(seq1,seq2,freq1,freq2,name1,name2,splitsTreeFolder, timeInter, toAlign, toIgnoreGaps);
-        if d12 == -1
-            [d12, d21] = calcTimeSamp_MJNSimul(seq1,seq2,freq1,freq2,name1,name2,splitsTreeFolder, timeInter, toAlign, toIgnoreGaps);
-        end
       catch 
           name1
           name2
-          error('some error')
-          
+          error('some error')         
       end
-%     else
-%         d12 = intmax;
-%         d21 = intmax;
-%     end
-    
-    resDir = [outbName '_results'];
-    outfile = [resDir filesep int2str(p1) '_' int2str(p2) '_' name1 '_' name2 '_res.txt'];
-    fid = fopen(outfile, 'w');
-    fprintf(fid, [int2str(d12) '\n']);
-    fprintf(fid, [int2str(d21) '\n']);
-    status = fclose(fid);
-%     
-
+      
     fileMJ_in = ['MJ_' name1 '_' name2 '_in.nex'];
     fileMJ_out = ['MJ_' name1 '_' name2 '_out.nex'];
     delete(fileMJ_in);
     delete(fileMJ_out);
-    
-
