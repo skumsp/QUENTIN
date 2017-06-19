@@ -7,6 +7,7 @@ https://github.com/walkergussler/quentin
 The description below is about matlab version. The main script is called quentin.m Input/output format:
 
 [HostNetThr, sources, transNets,transTrees] = quentin(inputFolder,splitsTreeFolder,distType,distThr,nclust,nIterSimul,nIterMCMC,nInstMCMC,interHostCoeffs,rho)
+
 Input parameters:
 
 inputFolder is a folder with input files in fasta format. All sequenced should be aligned
@@ -39,4 +40,4 @@ nIterMCMC = 250;
 
 nInstMCMC = 4;
 
-[HostNetThr, sources, transNets,TransTrees] = quentin(inputFolder,splitsTreeFolder,[],dis
+[HostNetThr, sources, transNets,TransTrees] = quentin(inputFolder,splitsTreeFolder,[],distThr, [],nIterSimul,nIterMCMC,nInstMCMC,[],[]);
