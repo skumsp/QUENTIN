@@ -1,5 +1,7 @@
 function [HostNetThr, sources, transNets,transTrees] = quentin(inputFolder,splitsTreeFolder,distType,distThr,nclust,nIterSimul,nIterMCMC,nInstMCMC,interHostCoeffs,rho)
 
+%todo 1) return networks for every component 2) linkage vs neighbor joining
+
 outdir = inputFolder;
 if isempty(distType)
     distType = 'evol';
