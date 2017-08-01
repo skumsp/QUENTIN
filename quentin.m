@@ -1,7 +1,5 @@
 function [HostNetThr, sources, transNets,transTrees] = quentin(inputFolder,splitsTreeFolder,distType,distThr,nclust,nIterSimul,nIterMCMC,nInstMCMC,interHostCoeffs,rho)
 
-%todo 1) return networks for every component 2) linkage vs neighbor joining
-
 outdir = inputFolder;
 if isempty(distType)
     distType = 'evol';
@@ -14,7 +12,7 @@ if isempty(nclust)
     nclust = 12;
 end
 
-files = dir(fullfile(outdir,'*.fas'));
+files = dir(fullfile(outdir,'*.fas*'));
 nSamp = size(files,1);
 names_pat = cell(1,nSamp);
 centroids_pat = cell(1,nSamp);
@@ -77,6 +75,7 @@ for i=1:size(product,1)
         DSamp(p2,p1) = DSampParRev(i);
 end
 
+DSamp(DSamp == -1) = intmax;
 
 AMSamp_dir = (DSamp <= DSamp');
 AMSamp = AMSamp_dir.*(DSamp <=distThr);
@@ -134,7 +133,11 @@ for c=1:S
        recordPar = zeros(1,nInstMCMC);
        parfor i=1:nInstMCMC
             interHostCoeff = datasample(interHostCoeffs,1);
-            [transNetsMCMCPar{i},TransNetTreesWeightPar{i},recordPar(i),aux] = findTransNetMCMC5(DSamp_comp,nIterMCMC,maxdist,nEdgeModif,rho,interHostCoeff,ndecr,[], 0,[],[]);
+            try
+                [transNetsMCMCPar{i},TransNetTreesWeightPar{i},recordPar(i),aux] = findTransNetMCMC5(DSamp_comp,nIterMCMC,maxdist,nEdgeModif,rho,interHostCoeff,ndecr,[], 0,[],[]);
+            catch
+                c
+            end
        end
        [argvalue, argmax] = max(recordPar);
        transNetsComp = transNetsMCMCPar{argmax};
